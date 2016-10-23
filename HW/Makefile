@@ -36,10 +36,11 @@ OPENOCD_BOARD_DIR=/usr/local/share/openocd/scripts/board
 OPENOCD_PROC_FILE=stm32f1-openocd.cfg
 
 # project parameters
-PROJ_NAME = demo-stm32f1
+PROJ_NAME = air-pencil
 CPU_FAMILY = STM32F10x
-CPU_MODEL_GENERAL = STM32F103xE
-CPU_MODEL_SPECIFIC = STM32F103VE
+CPU_MODEL_GENERAL = STM32F103xB
+CPU_MODEL_SPECIFIC = STM32F103RB
+
 
 ################################################################################
 # Libraries
@@ -59,15 +60,16 @@ INCLUDEDIRS += FreeRTOS/portable/MemMang
 LIBSOURCES  =
 #LIBSOURCES += Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/system_stm32f10x.c
 #LIBSOURCES += Libraries/STM32F10x_StdPeriph_Driver/src/
+
 # sources of FreeRTOS
-LIBSOURCES += FreeRTOS/croutine.c \
+#LIBSOURCES += FreeRTOS/croutine.c \
               FreeRTOS/event_groups.c \
-							FreeRTOS/list.c \
-							FreeRTOS/queue.c \
-							FreeRTOS/tasks.c \
-							FreeRTOS/timers.c
-LIBSOURCES += FreeRTOS/portable/GCC/ARM_CM3/port.c
-LIBSOURCES += FreeRTOS/portable/MemMang/heap_1.c
+              FreeRTOS/list.c \
+              FreeRTOS/queue.c \
+              FreeRTOS/tasks.c \
+              FreeRTOS/timers.c
+#LIBSOURCES += FreeRTOS/portable/GCC/ARM_CM3/port.c
+#LIBSOURCES += FreeRTOS/portable/MemMang/heap_1.c
 
 LIBOBJS = $(LIBSOURCES:.c=.o)
 
@@ -98,7 +100,7 @@ LDSCRIPT = -Wl,-T stm32_flash.ld
 CFLAGS  = -Wall -g -Os -D $(CPU_MODEL_GENERAL)
 CFLAGS += -std=c99 -mlittle-endian -mcpu=cortex-m3 -march=armv7-m -mthumb
 CFLAGS += -DUSE_STDPERIPH_DRIVER -DSTM32F10X_HD -DHSE_VALUE=8000000
-CFLAGS += -DGCC_ARMCM3 -DFREERTOS
+CFLAGS += -DGCC_ARMCM3 #-DFREERTOS
 CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wl,--gc-sections -Wl,-Map=$(PROJ_NAME).map
 CFLAGS +=  $(addprefix -I ,$(INCLUDEDIRS))
@@ -178,3 +180,4 @@ clean:
 	rm $(PROJ_NAME).bin
 	rm $(PROJ_NAME).map
 	rm $(PROJ_NAME).lst
+
