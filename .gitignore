@@ -63,3 +63,8 @@
 # unnecessary
 *.map
 *.lst
+
+# Eclipse auto generate
+HW/.settings/*
+*.cproject
+*.project
