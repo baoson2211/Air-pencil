@@ -32,6 +32,11 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+__IO extern uint32_t TimingDelay;
+__IO extern uint32_t Tick;
+__IO extern uint32_t TimeoutUs;
+
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -135,6 +140,17 @@ void PendSV_Handler(void)
   */
 void SysTick_Handler(void)
 {
+  Tick++;
+
+  if (TimingDelay != 0x00)
+  {
+    TimingDelay--;
+  }
+
+  if (TimeoutUs != 0x00)
+  {
+    TimeoutUs--;
+  }
 }
 #endif
 
