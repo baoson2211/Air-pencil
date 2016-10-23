@@ -3,14 +3,15 @@
 #define __ITG3200_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "bit.h"
+#include "imu.h"
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
 
 // if communication select I2C, the device id is setting by AD0 pin
-// alt = 0, device address = 0x68
-// alt = 1, device address = 0x69
+// ad0 = 0, device address = 0x68
+// ad0 = 1, device address = 0x69
 
 // Register Map
 #define ITG3200_WHO_AM_I                    0x00
@@ -36,7 +37,7 @@
 #define ITG3200_ID(x)                       (((x) & 0x3F) << 1)
 
 /* ITG3200_SMPLRT_DIV definition */
-#define ITG3200_SMPLRT_DIV                  ((x) & 0xFF)
+#define ITG3200_SMPLRT_DIV_VAL(x)           ((x) & 0xFF)
 
 /* ITG3200_DLPF_FS definition */
 #define ITG3200_DLPF_FS_SEL(x)              (((x) & 0x3) << 3)
@@ -70,9 +71,11 @@
 #else
   #define ITG3200_ADDR                      0x69
 #endif
-#define ITG3200_READ                        ((ITG3200_ADDR << 1) & 0xFE)
-#define ITG3200_WRITE                       ((ITG3200_ADDR << 1) & 0xFF)
+#define ITG3200_READ                        (((ITG3200_ADDR << 1) & 0xFE) | 0x01)
+#define ITG3200_WRITE                       ((ITG3200_ADDR << 1) & 0xFE )
+#define ITG3200_ADDR_DEFAUT                 ((ITG3200_ADDR << 1) & 0xFE )
 
 /* Exported functions ------------------------------------------------------- */
+int ITG3200_Initialize(void);
 
 #endif /* __ITG3200_H */
