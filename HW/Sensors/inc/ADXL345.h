@@ -3,7 +3,8 @@
 #define __ADXL345_H
 
 /* Includes ------------------------------------------------------------------*/
-#include "bit.h"
+#include "imu.h"
+#include "main.h"
 /* Exported types ------------------------------------------------------------*/
 /* Exported constants --------------------------------------------------------*/
 /* Exported macro ------------------------------------------------------------*/
@@ -135,9 +136,18 @@
 #else
   #define ADXL345_ADDR          0x1D
 #endif
-#define ADXL345_READ            ((ADXL345_ADDR << 1) & 0xFE)
-#define ADXL345_WRITE           ((ADXL345_ADDR << 1) & 0xFF)
+#define ADXL345_READ            (((ADXL345_ADDR << 1) & 0xFE) | 0x01)
+#define ADXL345_WRITE           ((ADXL345_ADDR << 1) & 0xFE)
+#define ADXL345_ADDR_DEFAUT     ((ADXL345_ADDR << 1) & 0xFE)
 
 /* Exported functions ------------------------------------------------------- */
+int ADXL345_Initialize(I2C_TypeDef* I2Cx);
+void ADXL345_single_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t data);
+uint8_t ADXL345_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr);
+void ADXL345_burst_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
+void ADXL345_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
+uint16_t get_RawAccel_X(I2C_TypeDef* I2Cx);
+uint16_t get_RawAccel_Y(I2C_TypeDef* I2Cx);
+uint16_t get_RawAccel_Z(I2C_TypeDef* I2Cx);
 
 #endif /* __ADXL345_H */
