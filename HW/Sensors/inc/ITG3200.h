@@ -27,8 +27,8 @@
 #define ITG3200_GYRO_XOUT_L                 0x1E
 #define ITG3200_GYRO_YOUT_H                 0x1F
 #define ITG3200_GYRO_YOUT_L                 0x20
-#define ITG3200_GYRO_ZOUT_L                 0x21
-#define ITG3200_GYRO_ZOUT_H                 0x22
+#define ITG3200_GYRO_ZOUT_H                 0x21
+#define ITG3200_GYRO_ZOUT_L                 0x22
 
 #define ITG3200_PWR_MGM                     0x3E
 
@@ -76,6 +76,6 @@
 #define ITG3200_ADDR_DEFAUT                 ((ITG3200_ADDR << 1) & 0xFE )
 
 /* Exported functions ------------------------------------------------------- */
-int ITG3200_Initialize(void);
+int ITG3200_Initialize(I2C_InitTypeDef * I2Cx);
 
 #endif /* __ITG3200_H */
