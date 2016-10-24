@@ -71,6 +71,12 @@ int main(void)
   }
   USART_SendText(USART1, "SysTick config done\n\r");
 
+  /* Test math.h library */
+  tick = micros();
+  double z = atan2(7.0,3.0);
+  tick = micros()- tick;
+  sprintf(str,"%ldus: %.10f\n\r", tick, z);
+  USART_SendText(USART1, str);
 
   while (1)
   {
@@ -81,34 +87,59 @@ int main(void)
     tick = micros()- tick;
     GPIOC->ODR ^= 0x0A;
     //DelayUs(1000000);
-    //for(int i = 0 ; i < 500000; i++);
+    for(int i = 0 ; i < 500000; i++);
 
     sprintf(str,"%ldus %x - %x - %x\n\r", tick, x_axis, y_axis, z_axis);
     USART_SendText(USART1, str);
   }
 }
 
+/**
+  * @brief  Delay in microsecond.
+  * @param  None
+  * @retval None
+  */
 void DelayUs(__IO uint32_t nTime)
 {
   TimingDelay = nTime;
   while(TimingDelay != 0);
 }
 
+/**
+  * @brief  micros
+  * @param  None
+  * @retval no. of microseconds is gone
+  */
 __IO uint32_t micros(void)
 {
   return Tick;
 }
 
+/**
+  * @brief  millis
+  * @param  None
+  * @retval no. of milliseconds is gone
+  */
 __IO uint32_t millis(void)
 {
   return (Tick / 1000);
 }
 
+/**
+  * @brief  init/start timeout
+  * @param  timeout interval
+  * @retval None
+  */
 void StartTimeoutUs(__IO uint32_t nTime)
 {
   TimeoutUs = nTime;
 }
 
+/**
+  * @brief  timeout ended?
+  * @param  None
+  * @retval 0 (no) or 1 (yes)
+  */
 int IsReachTimeout(void)
 {
   return (TimeoutUs == 0);
