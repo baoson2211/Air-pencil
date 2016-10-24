@@ -45,14 +45,20 @@ int main(void)
     while(1);
   }
   USART_SendText(USART1, "ADXL345 Initialize done\n\r");
-  sprintf(str, "Data format: 0x%x\n\r", (( ADXL345_FULL_RES | ADXL345_RANGE(ADXL345_RANGE_PM_16G) ) & 0xFF ));
-  USART_SendText(USART1, str);
-  sprintf(str, "Bandwidth rate: 0x%x\n\r", ( ADXL345_RATE(0x0C) & 0xFF ));
-  USART_SendText(USART1, str);
-  sprintf(str, "Power control: 0x%x\n\r", ( ADXL345_PCTL_MEASURE & 0xFF ));
-  USART_SendText(USART1, str);
-  sprintf(str, "Interrupt: 0x%x\n\r", (ADXL345_DATA_READY & 0xFF ));
-  USART_SendText(USART1, str);
+  //sprintf(str, "Data format: 0x%x\n\r", (( ADXL345_FULL_RES | ADXL345_RANGE(ADXL345_RANGE_PM_16G) ) & 0xFF ));
+  //USART_SendText(USART1, str);
+  //sprintf(str, "Bandwidth rate: 0x%x\n\r", ( ADXL345_RATE(0x0C) & 0xFF ));
+  //USART_SendText(USART1, str);
+  //sprintf(str, "Power control: 0x%x\n\r", ( ADXL345_PCTL_MEASURE & 0xFF ));
+  //USART_SendText(USART1, str);
+  //sprintf(str, "Interrupt: 0x%x\n\r", (ADXL345_DATA_READY & 0xFF ));
+  //USART_SendText(USART1, str);
+
+  /* ITG3200 Initialize */
+  if (ITG3200_Initialize(I2C2)) {
+    while(1);
+  }
+  USART_SendText(USART1, "ITG3200 Initialize done\n\r");
 
   /* GPIOC Periph clock enable */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
@@ -78,24 +84,60 @@ int main(void)
   //sprintf(str,"%ldus: %.10f\n\r", tick, z);
   //USART_SendText(USART1, str);
 
-  while (1)
-  {
+  //while (1)
+  //{
     tick = micros();
+    //ITG3200_single_read(I2C2, ITG3200_WHO_AM_I);
+    uint8_t data;
+    while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
+    USART_SendText(USART1, "1\n\r");
+
+    I2C_GenerateSTART(I2C2, ENABLE);
+    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_MODE_SELECT));
+    USART_SendText(USART1, "2\n\r");
+
+    I2C_Send7bitAddress(I2C2, ITG3200_ADDR_DEFAUT, I2C_Direction_Transmitter);
+    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+    USART_SendText(USART1, "3\n\r");
+
+    I2C_SendData(I2C2, ITG3200_WHO_AM_I);
+    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+    USART_SendText(USART1, "4\n\r");
+
+    I2C_GenerateSTART(I2C2, ENABLE);
+    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_MODE_SELECT));
+    USART_SendText(USART1, "5\n\r");
+
+    I2C_Send7bitAddress(I2C2, ITG3200_ADDR_DEFAUT, I2C_Direction_Receiver);
+    while(!I2C_CheckEvent(I2C2,I2C_EVENT_MASTER_BYTE_RECEIVED));
+    USART_SendText(USART1, "6\n\r");
+
+    data = I2C_ReceiveData(I2C2);
+    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_BYTE_RECEIVED));
+    USART_SendText(USART1, "7\n\r");
+
+    I2C_AcknowledgeConfig(I2C2, DISABLE);
+    USART_SendText(USART1, "8\n\r");
+
+    I2C_GenerateSTOP(I2C2, ENABLE);
+    while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
+    USART_SendText(USART1, "9\n\r");
+
     //uint16_t x_axis = get_RawAccel_X(I2C2);
     //uint16_t y_axis = get_RawAccel_Y(I2C2);
     //uint16_t z_axis = get_RawAccel_Z(I2C2);
-    float Xg = get_Accel_X(I2C2);
-    float Yg = get_Accel_Y(I2C2);
-    float Zg = get_Accel_Z(I2C2);
-    tick = micros()- tick;
-    GPIOC->ODR ^= 0x0A;
+    //float Xg = get_Accel_X(I2C2);
+    //float Yg = get_Accel_Y(I2C2);
+    //float Zg = get_Accel_Z(I2C2);
+    //tick = micros()- tick;
+    //GPIOC->ODR ^= 0x0A;
     //DelayUs(1000000);
-    for(int i = 0 ; i < 1000000; i++);
+    //for(int i = 0 ; i < 500000; i++);
 
     //sprintf(str,"%ldus %x - %x - %x\n\r", tick, x_axis, y_axis, z_axis);
-    sprintf(str,"%ldus %.3f\t%.3f\t%.3f\n\r", tick, Xg, Yg, Zg);
-    USART_SendText(USART1, str);
-  }
+    //sprintf(str,"%ldus %.3f  %.3f  %.3f\n\r", tick, Xg, Yg, Zg);
+    //USART_SendText(USART1, str);
+  //}
 }
 
 /**
