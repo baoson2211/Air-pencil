@@ -65,8 +65,10 @@ int I2C_Configration(I2C_TypeDef* I2Cx, int ClockSpeed)
   I2C_InitStructure.I2C_Mode = I2C_Mode_I2C;
   if (ClockSpeed == I2C_FAST_SPEED)
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_16_9;
-  else
+  else if (ClockSpeed == I2C_NORMAL_SPEED)
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
+  else
+    I2C_InitStructure.I2C_DutyCycle = ClockSpeed;
   I2C_InitStructure.I2C_OwnAddress1 = OwnAddress;
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
