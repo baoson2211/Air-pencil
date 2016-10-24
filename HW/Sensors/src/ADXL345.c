@@ -9,6 +9,11 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+const float alpha = 0.5;
+float fXg = 0;
+float fYg = 0;
+float fZg = 0;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -18,8 +23,8 @@
   * @retval 0 for done or other for not
   */
 int ADXL345_Initialize(I2C_TypeDef* I2Cx) {
-  /* range 16g (13 bit raw data) and full resolution */
-  I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_DATA_FORMAT, (( ADXL345_FULL_RES | ADXL345_RANGE(ADXL345_RANGE_PM_16G) ) & 0xFF) );
+  /* range +/-16g (13 bit raw data) and full resolution */
+  I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_DATA_FORMAT, (( ADXL345_FULL_RES | ADXL345_RANGE(ADXL345_RANGE_PM_16G) ) & 0x0B) );
   /* bandwitdh and output rate - see more Table 7 in datasheet rev. D */
   I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_BW_RATE, (ADXL345_RATE(0x0C) & 0xFF) );
   /* measuarment mode */
@@ -29,7 +34,7 @@ int ADXL345_Initialize(I2C_TypeDef* I2Cx) {
   /* 3 axis offset */
   I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_OFSX, ZERO );
   I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_OFSY, ZERO );
-  I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_OFSZ, BIT5 );
+  I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_OFSZ, ZERO );
   /* FIFO is not used */
   return 0;
 }
@@ -77,11 +82,11 @@ void ADXL345_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uin
   * @param  I2C interface you wanna use
   * @retval one word data
   */
-uint16_t get_RawAccel_X(I2C_TypeDef* I2Cx) {
+int16_t get_RawAccel_X(I2C_TypeDef* I2Cx) {
   uint8_t data[2];
   I2C_burst_read(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_DATA_X0, 2, data);
 
-  uint16_t temp = ( (data[1] << 8) | data[0] );
+  int16_t temp = (int16_t) ( (data[1] << 8) | data[0] );
   return temp;
 }
 
@@ -90,11 +95,11 @@ uint16_t get_RawAccel_X(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval one word data
   */
-uint16_t get_RawAccel_Y(I2C_TypeDef* I2Cx) {
+int16_t get_RawAccel_Y(I2C_TypeDef* I2Cx) {
   uint8_t data[2];
   I2C_burst_read(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_DATA_Y0, 2, data);
 
-  uint16_t temp = ( (data[1] << 8) | data[0] );
+  int16_t temp = (int16_t) ( (data[1] << 8) | data[0] );
   return temp;
 }
 
@@ -103,13 +108,65 @@ uint16_t get_RawAccel_Y(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval one word data
   */
-uint16_t get_RawAccel_Z(I2C_TypeDef* I2Cx) {
+int16_t get_RawAccel_Z(I2C_TypeDef* I2Cx) {
   uint8_t data[2];
   I2C_burst_read(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_DATA_Z0, 2, data);
 
-  uint16_t temp = ( (data[1] << 8) | data[0] );
+  int16_t temp = (int16_t) ( (data[1] << 8) | data[0] );
   return temp;
 }
+
+/* Value in G = Measurement Value * (G-range/(2^Resolution))
+ * Range  +/-2g (= 4g) - Resolution: 10 bits
+ * Range  +/-4g (= 8g) - Resolution: 11 bits
+ * Range  +/-8g (=16g) - Resolution: 12 bits
+ * Range +/-16g (=32g) - Resolution: 13 bits
+ * E.g: Range +/-16g
+ *   => Value in G = [Signed] Measurement Value * (32 / (2^13))
+ */
+/* Without low pass filter */
+/**
+  * @brief  get g-force along X axis
+  * @param  I2C interface you wanna use
+  * @retval g-force along X axis (in g unit)
+  */
+float get_Accel_X(I2C_TypeDef* I2Cx) {
+  return (float) ( get_RawAccel_X(I2Cx) * 0.0039 );
+}
+
+/**
+  * @brief  get g-force along Y axis
+  * @param  I2C interface you wanna use
+  * @retval g-force on Y axis (in g unit)
+  */
+float get_Accel_Y(I2C_TypeDef* I2Cx) {
+  return (float) ( get_RawAccel_Y(I2Cx) * 0.0039 );
+}
+
+/**
+  * @brief  get g-force along Z axis
+  * @param  I2C interface you wanna use
+  * @retval g-force on Z axis (in g unit)
+  */
+float get_Accel_Z(I2C_TypeDef* I2Cx) {
+  return (float) ( get_RawAccel_Z(I2Cx) * 0.0039 );
+}
+
+/* With low pass filter */
+//float get_Accel_X(I2C_TypeDef* I2Cx) {
+//  fXg = (float) ( (( get_RawAccel_X(I2Cx) * 0.0039 ) * alpha ) + fXg * (1.0 - alpha) );
+//  return fXg;
+//}
+//
+//float get_Accel_Y(I2C_TypeDef* I2Cx) {
+//  fYg = (float) ( (( get_RawAccel_Y(I2Cx) * 0.0039 ) * alpha ) + fYg * (1.0 - alpha) );
+//  return fYg;
+//}
+//
+//float get_Accel_Z(I2C_TypeDef* I2Cx) {
+//  fZg = (float) ( (( get_RawAccel_Z(I2Cx) * 0.0039 ) * alpha ) + fZg * (1.0 - alpha) );
+//  return fZg;
+//}
 
 
 /******************************* END OF FILE **********************************/
