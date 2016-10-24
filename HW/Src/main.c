@@ -72,24 +72,28 @@ int main(void)
   USART_SendText(USART1, "SysTick config done\n\r");
 
   /* Test math.h library */
-  tick = micros();
-  double z = atan2(7.0,3.0);
-  tick = micros()- tick;
-  sprintf(str,"%ldus: %.10f\n\r", tick, z);
-  USART_SendText(USART1, str);
+  //tick = micros();
+  //double z = atan2(7.0,3.0);
+  //tick = micros()- tick;
+  //sprintf(str,"%ldus: %.10f\n\r", tick, z);
+  //USART_SendText(USART1, str);
 
   while (1)
   {
     tick = micros();
-    uint16_t x_axis = get_RawAccel_X(I2C2);
-    uint16_t y_axis = get_RawAccel_Y(I2C2);
-    uint16_t z_axis = get_RawAccel_Z(I2C2);
+    //uint16_t x_axis = get_RawAccel_X(I2C2);
+    //uint16_t y_axis = get_RawAccel_Y(I2C2);
+    //uint16_t z_axis = get_RawAccel_Z(I2C2);
+    float Xg = get_Accel_X(I2C2);
+    float Yg = get_Accel_Y(I2C2);
+    float Zg = get_Accel_Z(I2C2);
     tick = micros()- tick;
     GPIOC->ODR ^= 0x0A;
     //DelayUs(1000000);
-    for(int i = 0 ; i < 500000; i++);
+    for(int i = 0 ; i < 1000000; i++);
 
-    sprintf(str,"%ldus %x - %x - %x\n\r", tick, x_axis, y_axis, z_axis);
+    //sprintf(str,"%ldus %x - %x - %x\n\r", tick, x_axis, y_axis, z_axis);
+    sprintf(str,"%ldus %.3f\t%.3f\t%.3f\n\r", tick, Xg, Yg, Zg);
     USART_SendText(USART1, str);
   }
 }
