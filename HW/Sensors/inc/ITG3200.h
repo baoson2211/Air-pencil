@@ -61,7 +61,7 @@
 #define ITG3200_PWR_MGM_STBY_XG             (1 << 5)
 #define ITG3200_PWR_MGM_STBY_YG             (1 << 4)
 #define ITG3200_PWR_MGM_STBY_ZG             (1 << 3)
-#define ITG3200_PWR_MGM_CLK_SEL(x)          ((x) & 0x3)
+#define ITG3200_PWR_MGM_CLK_SEL(x)          ((x) & 0x7)
 
 // ----  I2C address definition ----//
 //if pin AD0 ADDRESS(pin 9) as GND, I2C address as 0x68.
@@ -76,6 +76,13 @@
 #define ITG3200_ADDR_DEFAUT                 ((ITG3200_ADDR << 1) & 0xFE )
 
 /* Exported functions ------------------------------------------------------- */
-int ITG3200_Initialize(I2C_InitTypeDef * I2Cx);
+int ITG3200_Initialize(I2C_TypeDef* I2Cx);
+void ITG3200_single_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t data);
+uint8_t ITG3200_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr);
+void ITG3200_burst_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
+void ITG3200_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
+int16_t get_RawGyro_X(I2C_TypeDef* I2Cx);
+int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx);
+int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx);
 
 #endif /* __ITG3200_H */
