@@ -97,7 +97,7 @@ OBJ = $(OBJC:.s=.o)
 LDSCRIPT = -Wl,-T stm32_flash.ld
 
 # CFLAGS
-CFLAGS  = -Wall -g -Os -D $(CPU_MODEL_GENERAL)
+CFLAGS  = -Wall -g -Og -D $(CPU_MODEL_GENERAL)
 CFLAGS += -std=c99 -mlittle-endian -mcpu=cortex-m3 -march=armv7-m -mthumb
 CFLAGS += -DUSE_STDPERIPH_DRIVER -DSTM32F10X_HD -DHSE_VALUE=8000000
 CFLAGS += -DGCC_ARMCM3 #-DFREERTOS
