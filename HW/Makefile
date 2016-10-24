@@ -174,10 +174,10 @@ flash:
 # Clean
 #
 clean:
-	rm $(shell find ./ -name *.o)
-	rm $(PROJ_NAME).elf
-	rm $(PROJ_NAME).hex
-	rm $(PROJ_NAME).bin
-	rm $(PROJ_NAME).map
-	rm $(PROJ_NAME).lst
+	rm -f $(shell find ./ -name *.o)
+	rm -f $(PROJ_NAME).elf
+	rm -f $(PROJ_NAME).hex
+	rm -f $(PROJ_NAME).bin
+	rm -f $(PROJ_NAME).map
+	rm -f $(PROJ_NAME).lst
 
