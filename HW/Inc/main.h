@@ -8,6 +8,7 @@
 #include "usart.h"
 #include "i2c.h"
 #include "ADXL345.h"
+#include "ITG3200.h"
 
 __IO uint32_t TimingDelay;
 __IO uint32_t Tick;
