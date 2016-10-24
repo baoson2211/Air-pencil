@@ -3,6 +3,7 @@
 #define __IMU_H
 
 /* Includes ------------------------------------------------------------------*/
+#include <math.h>
 #include "bit.h"
 /* Exported types ------------------------------------------------------------*/
 typedef struct __imu {
