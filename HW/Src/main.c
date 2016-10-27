@@ -15,6 +15,7 @@
 /* Private variables ---------------------------------------------------------*/
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
+int LED_Initialize(void);
 
 /**
   * @brief  Main program.
@@ -23,21 +24,22 @@
   */
 int main(void)
 {
-  GPIO_InitTypeDef GPIO_InitStructure;
   uint32_t tick;
   char str[50];
 
-  /*!< At this stage the microcontroller clock setting is already configured, 
-       this is done through SystemInit() function which is called from startup
-       file (startup_stm32f10x_xx.s) before to branch to application main.
-       To reconfigure the default setting of SystemInit() function, refer to
-       system_stm32f10x.c file
-     */
+  SystemInit();
+  if (SysTick_Config(SystemCoreClock / 1000000))
+  {
+    /* Capture error */
+    while (1);
+  }
+
   /* USART1 Configuration */
   USART_Configuration();
 
   /* I2C2 Configuration */
   I2C_Configration(I2C2, I2C_FAST_SPEED);
+  //for(int i = 0 ; i < 500000; i++);
   USART_SendText(USART1, "I2C config done\n\r");
 
   /* ADXL345 Initialize */
@@ -45,14 +47,6 @@ int main(void)
     while(1);
   }
   USART_SendText(USART1, "ADXL345 Initialize done\n\r");
-  //sprintf(str, "Data format: 0x%x\n\r", (( ADXL345_FULL_RES | ADXL345_RANGE(ADXL345_RANGE_PM_16G) ) & 0xFF ));
-  //USART_SendText(USART1, str);
-  //sprintf(str, "Bandwidth rate: 0x%x\n\r", ( ADXL345_RATE(0x0C) & 0xFF ));
-  //USART_SendText(USART1, str);
-  //sprintf(str, "Power control: 0x%x\n\r", ( ADXL345_PCTL_MEASURE & 0xFF ));
-  //USART_SendText(USART1, str);
-  //sprintf(str, "Interrupt: 0x%x\n\r", (ADXL345_DATA_READY & 0xFF ));
-  //USART_SendText(USART1, str);
 
   /* ITG3200 Initialize */
   if (ITG3200_Initialize(I2C2)) {
@@ -60,6 +54,54 @@ int main(void)
   }
   USART_SendText(USART1, "ITG3200 Initialize done\n\r");
 
+  /* HMC5883L Initialize */
+  if(HMC5883L_Initialize(I2C2)) {
+    while(1);
+  }
+  USART_SendText(USART1, "HMC5883L Initialize done\n\r");
+
+  if(LED_Initialize()) {
+    while(1);
+  }
+  USART_SendText(USART1, "LED Initialize done\n\r");
+
+  while (1)
+  {
+    uint8_t regs[6];
+    tick = micros();
+    GPIOC->ODR ^= 0x0A;
+    tick = micros()- tick;
+    //DelayUs(100000);
+    for(int i = 0 ; i < 500000; i++);
+
+    ITG3200_burst_read(I2C2, ITG3200_GYRO_XOUT_H,6,regs);
+    sprintf(str,"gyro:  %x - %x - %x\n\r", (uint16_t) (regs[0]<<8 | regs[1]),
+        (uint16_t) (regs[2]<<8 | regs[3]),
+        (uint16_t) (regs[4]<<8 | regs[5]));
+    USART_SendText(USART1, str);
+
+    ADXL345_burst_read(I2C2, ADXL345_DATA_X0, 6,regs);
+    sprintf(str,"accel: %x - %x - %x\n\r", (uint16_t) (regs[1]<<8 | regs[0]),
+        (uint16_t) (regs[3]<<8 | regs[2]),
+        (uint16_t) (regs[5]<<8 | regs[4]));
+    USART_SendText(USART1, str);
+
+    HMC5883L_burst_read(I2C2, HMC5883L_MAG_XOUT_H, 6,regs);
+    sprintf(str,"mag:   %x - %x - %x\n\r", (uint16_t) (regs[1]<<8 | regs[0]),
+        (uint16_t) (regs[5]<<8 | regs[4]),
+        (uint16_t) (regs[3]<<8 | regs[2]));
+    USART_SendText(USART1, str);
+  }
+}
+
+/**
+  * @brief  LED Initialize.
+  * @param  None
+  * @retval 0 for done or other for not
+  */
+int LED_Initialize(void)
+{
+  GPIO_InitTypeDef GPIO_InitStructure;
   /* GPIOC Periph clock enable */
   RCC_APB2PeriphClockCmd(RCC_APB2Periph_GPIOC, ENABLE);
 
@@ -68,76 +110,8 @@ int main(void)
   GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
   GPIO_InitStructure.GPIO_Mode = GPIO_Mode_Out_PP;
   GPIO_Init(GPIOC, &GPIO_InitStructure);
-
-  SystemInit();
-  if (SysTick_Config(SystemCoreClock / 1000000))
-  {
-    /* Capture error */
-    while (1);
-  }
-  USART_SendText(USART1, "SysTick config done\n\r");
-
-  /* Test math.h library */
-  //tick = micros();
-  //double z = atan2(7.0,3.0);
-  //tick = micros()- tick;
-  //sprintf(str,"%ldus: %.10f\n\r", tick, z);
-  //USART_SendText(USART1, str);
-
-  //while (1)
-  //{
-    tick = micros();
-    //ITG3200_single_read(I2C2, ITG3200_WHO_AM_I);
-    uint8_t data;
-    while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
-    USART_SendText(USART1, "1\n\r");
-
-    I2C_GenerateSTART(I2C2, ENABLE);
-    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_MODE_SELECT));
-    USART_SendText(USART1, "2\n\r");
-
-    I2C_Send7bitAddress(I2C2, ITG3200_ADDR_DEFAUT, I2C_Direction_Transmitter);
-    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
-    USART_SendText(USART1, "3\n\r");
-
-    I2C_SendData(I2C2, ITG3200_WHO_AM_I);
-    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-    USART_SendText(USART1, "4\n\r");
-
-    I2C_GenerateSTART(I2C2, ENABLE);
-    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_MODE_SELECT));
-    USART_SendText(USART1, "5\n\r");
-
-    I2C_Send7bitAddress(I2C2, ITG3200_ADDR_DEFAUT, I2C_Direction_Receiver);
-    while(!I2C_CheckEvent(I2C2,I2C_EVENT_MASTER_BYTE_RECEIVED));
-    USART_SendText(USART1, "6\n\r");
-
-    data = I2C_ReceiveData(I2C2);
-    while(!I2C_CheckEvent(I2C2, I2C_EVENT_MASTER_BYTE_RECEIVED));
-    USART_SendText(USART1, "7\n\r");
-
-    I2C_AcknowledgeConfig(I2C2, DISABLE);
-    USART_SendText(USART1, "8\n\r");
-
-    I2C_GenerateSTOP(I2C2, ENABLE);
-    while(I2C_GetFlagStatus(I2C2, I2C_FLAG_BUSY));
-    USART_SendText(USART1, "9\n\r");
-
-    //uint16_t x_axis = get_RawAccel_X(I2C2);
-    //uint16_t y_axis = get_RawAccel_Y(I2C2);
-    //uint16_t z_axis = get_RawAccel_Z(I2C2);
-    //float Xg = get_Accel_X(I2C2);
-    //float Yg = get_Accel_Y(I2C2);
-    //float Zg = get_Accel_Z(I2C2);
-    //tick = micros()- tick;
-    //GPIOC->ODR ^= 0x0A;
-    //DelayUs(1000000);
-    //for(int i = 0 ; i < 500000; i++);
-
-    //sprintf(str,"%ldus %x - %x - %x\n\r", tick, x_axis, y_axis, z_axis);
-    //sprintf(str,"%ldus %.3f  %.3f  %.3f\n\r", tick, Xg, Yg, Zg);
-    //USART_SendText(USART1, str);
-  //}
+  GPIOC->ODR |= 0x08;
+  return 0;
 }
 
 /**
