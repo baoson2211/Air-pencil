@@ -18,16 +18,18 @@
   * @retval 0 for done or other for not
   */
 int ITG3200_Initialize(I2C_TypeDef* I2Cx) {
-  /* Using internal oscillator */
-  I2C_single_write(I2C2, ITG3200_ADDR_DEFAUT, ITG3200_PWR_MGM, ITG3200_PWR_MGM_CLK_SEL(0) );
+  /* Factory reset */
+  I2C_single_write(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_PWR_MGM, ITG3200_PWR_MGM_H_RESET);
   /* Full scale and F_internal = 8kHz, LPF Bandwidth = 256Hz */
-  I2C_single_write(I2C2, ITG3200_ADDR_DEFAUT, ITG3200_DLPF_FS, ( ITG3200_DLPF_FS_SEL(3) | ITG3200_DLPF_CFG(0) ));
+  I2C_single_write(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_DLPF_FS, ( ITG3200_DLPF_FS_SEL(3) | ITG3200_DLPF_CFG(0) ));
   /* Divider as 19
    * F_sample = F_internal / (divider + 1) = 8000 / (19 + 1) = 400Hz
    */
-  I2C_single_write(I2C2, ITG3200_ADDR_DEFAUT, ITG3200_SMPLRT_DIV, ( ITG3200_SMPLRT_DIV_VAL(19) ));
+  I2C_single_write(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_SMPLRT_DIV, ( ITG3200_SMPLRT_DIV_VAL(19) ));
   /* Disalbe interrupt */
-  I2C_single_write(I2C2, ITG3200_ADDR_DEFAUT, ITG3200_INT_CFG, 0x00);
+  I2C_single_write(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_INT_CFG, ZERO);
+  /* Using internal oscillator */
+  I2C_single_write(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_PWR_MGM, ( ITG3200_PWR_MGM_CLK_SEL(0) ));
   return 0;
 }
 
