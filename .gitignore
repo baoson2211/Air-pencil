@@ -68,3 +68,4 @@
 HW/.settings/*
 *.cproject
 *.project
+*.launch
