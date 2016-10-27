@@ -14,23 +14,24 @@
 // ad0 = 1, device address = 0x69
 
 // Register Map
-#define ITG3200_WHO_AM_I                    0x00
-#define ITG3200_SMPLRT_DIV                  0x15
-#define ITG3200_DLPF_FS                     0x16
-#define ITG3200_INT_CFG                     0x17
-#define ITG3200_INT_STATUS                  0x1A
-
-#define ITG3200_TEMP_OUT_H                  0x1B
-#define ITG3200_TEMP_OUT_L                  0x1C
-
-#define ITG3200_GYRO_XOUT_H                 0x1D
-#define ITG3200_GYRO_XOUT_L                 0x1E
-#define ITG3200_GYRO_YOUT_H                 0x1F
-#define ITG3200_GYRO_YOUT_L                 0x20
-#define ITG3200_GYRO_ZOUT_H                 0x21
-#define ITG3200_GYRO_ZOUT_L                 0x22
-
-#define ITG3200_PWR_MGM                     0x3E
+#define ITG3200_WHO_AM_I                    0x00 // RW
+#define ITG3200_SMPLRT_DIV                  0x15 // RW
+#define ITG3200_DLPF_FS                     0x16 // RW
+#define ITG3200_INT_CFG                     0x17 // RW
+// Interrupt status register
+#define ITG3200_INT_STATUS                  0x1A // R
+// Temperature data registers
+#define ITG3200_TEMP_OUT_H                  0x1B // R
+#define ITG3200_TEMP_OUT_L                  0x1C // R
+// Gyro data registers
+#define ITG3200_GYRO_XOUT_H                 0x1D // R
+#define ITG3200_GYRO_XOUT_L                 0x1E // R
+#define ITG3200_GYRO_YOUT_H                 0x1F // R
+#define ITG3200_GYRO_YOUT_L                 0x20 // R
+#define ITG3200_GYRO_ZOUT_H                 0x21 // R
+#define ITG3200_GYRO_ZOUT_L                 0x22 // R
+// Power management register
+#define ITG3200_PWR_MGM                     0x3E // RW
 
 // ----registrer bit definitioin ------//
 /* ITG3200_ID definition */
