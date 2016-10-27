@@ -68,7 +68,7 @@ int I2C_Configration(I2C_TypeDef* I2Cx, int ClockSpeed)
   else if (ClockSpeed == I2C_NORMAL_SPEED)
     I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
   else
-    I2C_InitStructure.I2C_DutyCycle = ClockSpeed;
+    I2C_InitStructure.I2C_DutyCycle = I2C_DutyCycle_2;
   I2C_InitStructure.I2C_OwnAddress1 = OwnAddress;
   I2C_InitStructure.I2C_Ack = I2C_Ack_Enable;
   I2C_InitStructure.I2C_AcknowledgedAddress = I2C_AcknowledgedAddress_7bit;
@@ -119,20 +119,25 @@ uint8_t I2C_single_read(I2C_TypeDef* I2Cx, uint8_t HW_address, uint8_t REG_addr)
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
   I2C_Send7bitAddress(I2Cx, HW_address, I2C_Direction_Transmitter);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+  I2C_Cmd(I2Cx, ENABLE);
   I2C_SendData(I2Cx, REG_addr);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
+
   I2C_GenerateSTART(I2Cx, ENABLE);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
   I2C_Send7bitAddress(I2Cx, HW_address, I2C_Direction_Receiver);
-    while(!I2C_CheckEvent(I2Cx,I2C_EVENT_MASTER_BYTE_RECEIVED));
+    while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED));
   data = I2C_ReceiveData(I2Cx);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED));
+  I2C_NACKPositionConfig(I2Cx, I2C_NACKPosition_Current);
   I2C_AcknowledgeConfig(I2Cx, DISABLE);
   I2C_GenerateSTOP(I2Cx, ENABLE);
     while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+  I2C_AcknowledgeConfig(I2Cx, ENABLE);
   return data;
 }
 
+// OK
 void I2C_burst_read(I2C_TypeDef* I2Cx, uint8_t HW_address, uint8_t REG_addr, uint8_t n_data, uint8_t *data)
 {
     while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
@@ -140,20 +145,22 @@ void I2C_burst_read(I2C_TypeDef* I2Cx, uint8_t HW_address, uint8_t REG_addr, uin
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
   I2C_Send7bitAddress(I2Cx, HW_address, I2C_Direction_Transmitter);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_TRANSMITTER_MODE_SELECTED));
+  I2C_Cmd(I2Cx, ENABLE);
   I2C_SendData(I2Cx, REG_addr);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_TRANSMITTED));
-  I2C_GenerateSTOP(I2Cx, ENABLE);
+
   I2C_GenerateSTART(I2Cx, ENABLE);
     while(!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_MODE_SELECT));
   I2C_Send7bitAddress(I2Cx, HW_address, I2C_Direction_Receiver);
     while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_RECEIVER_MODE_SELECTED));
-  I2C_AcknowledgeConfig(I2Cx, ENABLE);
   while(n_data--) {
-    if(!n_data) I2C_AcknowledgeConfig(I2Cx, DISABLE);
       while (!I2C_CheckEvent(I2Cx, I2C_EVENT_MASTER_BYTE_RECEIVED));
     *data++ = I2C_ReceiveData(I2Cx);
+    if(!n_data) I2C_NACKPositionConfig(I2Cx, I2C_NACKPosition_Current);
+    else I2C_AcknowledgeConfig(I2Cx, ENABLE);
   }
   I2C_AcknowledgeConfig(I2Cx, DISABLE);
   I2C_GenerateSTOP(I2Cx, ENABLE);
     while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
+  I2C_AcknowledgeConfig(I2Cx, ENABLE);
 }
