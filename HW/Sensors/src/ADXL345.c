@@ -23,7 +23,7 @@ float fZg = 0;
   * @retval 0 for done or other for not
   */
 int ADXL345_Initialize(I2C_TypeDef* I2Cx) {
-  /* range +/-16g (13 bit raw data) and full resolution */
+  /* range ±16g (13 bit raw data) and full resolution */
   I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_DATA_FORMAT, (( ADXL345_FULL_RES | ADXL345_RANGE(ADXL345_RANGE_PM_16G) ) & 0x0B) );
   /* bandwitdh and output rate - see more Table 7 in datasheet rev. D */
   I2C_single_write(I2Cx, ADXL345_ADDR_DEFAUT, ADXL345_BW_RATE, (ADXL345_RATE(0x0C) & 0xFF) );
@@ -117,11 +117,11 @@ int16_t get_RawAccel_Z(I2C_TypeDef* I2Cx) {
 }
 
 /* Value in G = Measurement Value * (G-range/(2^Resolution))
- * Range  +/-2g (= 4g) - Resolution: 10 bits
- * Range  +/-4g (= 8g) - Resolution: 11 bits
- * Range  +/-8g (=16g) - Resolution: 12 bits
- * Range +/-16g (=32g) - Resolution: 13 bits
- * E.g: Range +/-16g
+ * Range ± 2g (=  4g) - Resolution: 10 bits
+ * Range ± 4g (=  8g) - Resolution: 11 bits
+ * Range ± 8g (= 16g) - Resolution: 12 bits
+ * Range ±16g (= 32g) - Resolution: 13 bits
+ * E.g: Range ±16g
  *   => Value in G = [Signed] Measurement Value * (32 / (2^13))
  */
 /* Without low pass filter */
