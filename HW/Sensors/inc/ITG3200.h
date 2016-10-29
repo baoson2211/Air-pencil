@@ -85,5 +85,8 @@ void ITG3200_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uin
 int16_t get_RawGyro_X(I2C_TypeDef* I2Cx);
 int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx);
 int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx);
+float get_Gyro_X(I2C_TypeDef* I2Cx);
+float get_Gyro_Y(I2C_TypeDef* I2Cx);
+float get_Gyro_Z(I2C_TypeDef* I2Cx);
 
 #endif /* __ITG3200_H */

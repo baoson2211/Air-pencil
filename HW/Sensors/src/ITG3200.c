@@ -9,6 +9,8 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern imu imudata;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 
@@ -116,7 +118,7 @@ int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx) {
   * @retval g-force along X axis (in g unit)
   */
 float get_Gyro_X(I2C_TypeDef* I2Cx) {
-  return 0;
+  return (float) ((get_RawGyro_X(I2Cx) + imudata.gyro_offset[0]) / 14.375);
 }
 
 /**
@@ -125,7 +127,7 @@ float get_Gyro_X(I2C_TypeDef* I2Cx) {
   * @retval g-force on Y axis (in g unit)
   */
 float get_Gyro_Y(I2C_TypeDef* I2Cx) {
-  return 0;
+  return (float) ((get_RawGyro_Y(I2Cx) + imudata.gyro_offset[1]) / 14.375);
 }
 
 /**
@@ -134,7 +136,7 @@ float get_Gyro_Y(I2C_TypeDef* I2Cx) {
   * @retval g-force on Z axis (in g unit)
   */
 float get_Gyro_Z(I2C_TypeDef* I2Cx) {
-  return 0;
+  return (float) ((get_RawGyro_Z(I2Cx) + imudata.gyro_offset[2]) / 14.375);
 }
 
 
