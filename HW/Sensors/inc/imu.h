@@ -7,18 +7,15 @@
 #include "bit.h"
 /* Exported types ------------------------------------------------------------*/
 typedef struct __imu {
-  __IO uint8_t *accel_buff;
-  __IO uint16_t accel_x;
-  __IO uint16_t accel_y;
-  __IO uint16_t accel_z;
-
-  __IO uint8_t *gyro_buff;
-  __IO uint16_t gyro_x;
-  __IO uint16_t gyro_y;
-  __IO uint16_t gyro_z;
+  __IO float accel[3];
+  __IO float gyro[3];
+  __IO int16_t gyro_offset[3];
 } imu;
 
 /* Exported constants --------------------------------------------------------*/
+/* Exported variables --------------------------------------------------------*/
+imu imudata;
+
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 
