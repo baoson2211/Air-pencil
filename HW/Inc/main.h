@@ -3,6 +3,8 @@
 #define __MAIN_H
 
 /* Includes ------------------------------------------------------------------*/
+#include <stdio.h>
+#include <string.h>
 #include "stm32f10x.h"
 #include "stm32f10x_conf.h"
 #include "usart.h"
@@ -20,6 +22,7 @@ __IO uint32_t TimeoutUs;
 /* Exported macro ------------------------------------------------------------*/
 /* Exported functions ------------------------------------------------------- */
 void DelayUs(__IO uint32_t nTime);
+void DelayMs(__IO uint32_t nTime);
 __IO uint32_t micros(void);
 __IO uint32_t millis(void);
 void StartTimeoutUs(__IO uint32_t nTime);
