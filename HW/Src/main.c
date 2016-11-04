@@ -13,9 +13,12 @@
 /* Private define ------------------------------------------------------------*/
 /* Private macro -------------------------------------------------------------*/
 /* Private variables ---------------------------------------------------------*/
+extern imu imudata;
+
 /* Private function prototypes -----------------------------------------------*/
 /* Private functions ---------------------------------------------------------*/
 int LED_Initialize(void);
+void DelayMs(__IO uint32_t nTime);
 
 /**
   * @brief  Main program.
@@ -60,10 +63,38 @@ int main(void)
   }
   USART_SendText(USART1, "HMC5883L Initialize done\n\r");
 
+  /* LED Initialize */
   if(LED_Initialize()) {
     while(1);
   }
   USART_SendText(USART1, "LED Initialize done\n\r");
+
+  __IO char res;
+  StartTimeoutUs(5000000);
+  USART_SendText(USART1, "Are you wanna calibrate your sensors? (Y/n). Timeout in 5 seconds ...");
+  while(!IsReachTimeout()) {
+    //if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET)
+      res = (char) USART_ReceiveData(USART1);
+  }
+  USART_SendText(USART1, "\n\r");
+
+  if(res == 'Y' || res == 'y' || res == 0x20 || res == 0x10 || res == 0x13) {
+    /* Gyro calibrate */
+    if(GyroCalibrate(I2C2, GYRO_CAL_N_SAMPLE)) {
+      while(1);
+    }
+
+    /* Accel calibrate */
+    if(AccelCalibrate(I2C2)) {
+      while(1);
+    }
+  } else {
+    USART_SendText(USART1, "Sensors are not calibrated!\n\r");
+  }
+
+  USART_SendText(USART1, "Press any key to start... \n\r");
+  USART_ReceiveData(USART1);
+  while(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET);
 
   while (1)
   {
@@ -71,26 +102,30 @@ int main(void)
     tick = micros();
     GPIOC->ODR ^= 0x0A;
     tick = micros()- tick;
-    //DelayUs(100000);
+    DelayUs(10000);
     for(int i = 0 ; i < 500000; i++);
+//    sprintf(str,"gyro:  %d  %d  %d\n\r", get_RawAccel_X(I2C2),
+//        get_RawAccel_Y(I2C2),
+//        get_RawAccel_Z(I2C2));
+//    USART_SendText(USART1, str);
 
     ITG3200_burst_read(I2C2, ITG3200_GYRO_XOUT_H,6,regs);
-    sprintf(str,"gyro:  %x - %x - %x\n\r", (uint16_t) (regs[0]<<8 | regs[1]),
-        (uint16_t) (regs[2]<<8 | regs[3]),
-        (uint16_t) (regs[4]<<8 | regs[5]));
+    sprintf(str,"gyro:  %f  %f  %f\n\r", get_Gyro_X(I2C2),
+        get_Gyro_Y(I2C2),
+        get_Gyro_Z(I2C2));
     USART_SendText(USART1, str);
 
     ADXL345_burst_read(I2C2, ADXL345_DATA_X0, 6,regs);
-    sprintf(str,"accel: %x - %x - %x\n\r", (uint16_t) (regs[1]<<8 | regs[0]),
-        (uint16_t) (regs[3]<<8 | regs[2]),
-        (uint16_t) (regs[5]<<8 | regs[4]));
+    sprintf(str,"accel: %f  %f  %f\n\r", get_Accel_X(I2C2),
+        get_Accel_Y(I2C2),
+        get_Accel_Z(I2C2));
     USART_SendText(USART1, str);
 
-    HMC5883L_burst_read(I2C2, HMC5883L_MAG_XOUT_H, 6,regs);
-    sprintf(str,"mag:   %x - %x - %x\n\r", (uint16_t) (regs[1]<<8 | regs[0]),
-        (uint16_t) (regs[5]<<8 | regs[4]),
-        (uint16_t) (regs[3]<<8 | regs[2]));
-    USART_SendText(USART1, str);
+//    HMC5883L_burst_read(I2C2, HMC5883L_MAG_XOUT_H, 6,regs);
+//    sprintf(str,"mag:   %x - %x - %x\n\r", (uint16_t) (regs[1]<<8 | regs[0]),
+//        (uint16_t) (regs[5]<<8 | regs[4]),
+//        (uint16_t) (regs[3]<<8 | regs[2]));
+//    USART_SendText(USART1, str);
   }
 }
 
@@ -123,6 +158,17 @@ void DelayUs(__IO uint32_t nTime)
 {
   TimingDelay = nTime;
   while(TimingDelay != 0);
+}
+
+/**
+  * @brief  Delay in microsecond.
+  * @param  None
+  * @retval None
+  */
+void DelayMs(__IO uint32_t nTime)
+{
+  while (nTime--)
+  DelayUs(1000);
 }
 
 /**
