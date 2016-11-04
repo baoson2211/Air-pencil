@@ -9,7 +9,12 @@
 typedef struct __imu {
   __IO float accel[3];
   __IO float gyro[3];
+
+  __IO int16_t accel_offset[3];
   __IO int16_t gyro_offset[3];
+
+  __IO uint8_t accel_gain[3];
+  __IO uint8_t gyro_gain[3];
 } imu;
 
 /* Exported constants --------------------------------------------------------*/
