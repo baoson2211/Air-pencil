@@ -140,17 +140,21 @@
 #define ADXL345_WRITE           ((ADXL345_ADDR << 1) & 0xFE)
 #define ADXL345_ADDR_DEFAUT     ((ADXL345_ADDR << 1) & 0xFE)
 
+// ---- ACCEL Number of calibrate samples: 100 samples ----//
+#define ACCEL_CAL_N_SAMPLE      0x64
+
 /* Exported functions ------------------------------------------------------- */
 int ADXL345_Initialize(I2C_TypeDef* I2Cx);
 void ADXL345_single_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t data);
-uint8_t ADXL345_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr);
+__IO uint8_t ADXL345_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr);
 void ADXL345_burst_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
 void ADXL345_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
-int16_t get_RawAccel_X(I2C_TypeDef* I2Cx);
-int16_t get_RawAccel_Y(I2C_TypeDef* I2Cx);
-int16_t get_RawAccel_Z(I2C_TypeDef* I2Cx);
-float get_Accel_X(I2C_TypeDef* I2Cx);
-float get_Accel_Y(I2C_TypeDef* I2Cx);
-float get_Accel_Z(I2C_TypeDef* I2Cx);
+__IO int16_t get_RawAccel_X(I2C_TypeDef* I2Cx);
+__IO int16_t get_RawAccel_Y(I2C_TypeDef* I2Cx);
+__IO int16_t get_RawAccel_Z(I2C_TypeDef* I2Cx);
+__IO float get_Accel_X(I2C_TypeDef* I2Cx);
+__IO float get_Accel_Y(I2C_TypeDef* I2Cx);
+__IO float get_Accel_Z(I2C_TypeDef* I2Cx);
+int AccelCalibrate(I2C_TypeDef* I2Cx);
 
 #endif /* __ADXL345_H */

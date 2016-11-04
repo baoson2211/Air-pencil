@@ -111,7 +111,7 @@ void I2C_burst_write(I2C_TypeDef* I2Cx, uint8_t HW_address, uint8_t REG_addr, ui
     while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));
 }
 
-uint8_t I2C_single_read(I2C_TypeDef* I2Cx, uint8_t HW_address, uint8_t REG_addr)
+__IO uint8_t I2C_single_read(I2C_TypeDef* I2Cx, uint8_t HW_address, uint8_t REG_addr)
 {
   uint8_t data;
     while(I2C_GetFlagStatus(I2Cx, I2C_FLAG_BUSY));

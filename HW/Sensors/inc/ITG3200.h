@@ -76,17 +76,21 @@
 #define ITG3200_WRITE                       ((ITG3200_ADDR << 1) & 0xFE )
 #define ITG3200_ADDR_DEFAUT                 ((ITG3200_ADDR << 1) & 0xFE )
 
+// ---- GYRO Number of calibrate samples: 5 samples ---- //
+#define GYRO_CAL_N_SAMPLE                   0x05
+
 /* Exported functions ------------------------------------------------------- */
 int ITG3200_Initialize(I2C_TypeDef* I2Cx);
 void ITG3200_single_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t data);
-uint8_t ITG3200_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr);
+__IO uint8_t ITG3200_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr);
 void ITG3200_burst_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
 void ITG3200_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uint8_t *data);
-int16_t get_RawGyro_X(I2C_TypeDef* I2Cx);
-int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx);
-int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx);
-float get_Gyro_X(I2C_TypeDef* I2Cx);
-float get_Gyro_Y(I2C_TypeDef* I2Cx);
-float get_Gyro_Z(I2C_TypeDef* I2Cx);
+__IO int16_t get_RawGyro_X(I2C_TypeDef* I2Cx);
+__IO int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx);
+__IO int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx);
+__IO float get_Gyro_X(I2C_TypeDef* I2Cx);
+__IO float get_Gyro_Y(I2C_TypeDef* I2Cx);
+__IO float get_Gyro_Z(I2C_TypeDef* I2Cx);
+int GyroCalibrate(I2C_TypeDef* I2Cx, uint8_t n_sample);
 
 #endif /* __ITG3200_H */

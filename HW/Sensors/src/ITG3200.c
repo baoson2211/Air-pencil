@@ -49,7 +49,7 @@ void ITG3200_single_write(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t data) {
   * @param  I2C interface you wanna use, register address is read
   * @retval one byte data
   */
-uint8_t ITG3200_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr) {
+__IO uint8_t ITG3200_single_read(I2C_TypeDef* I2Cx, uint8_t REG_addr) {
   return I2C_single_read(I2Cx, ITG3200_ADDR_DEFAUT, REG_addr);
 }
 
@@ -78,7 +78,7 @@ void ITG3200_burst_read(I2C_TypeDef* I2Cx, uint8_t REG_addr, uint8_t n_data, uin
   * @param  I2C interface you wanna use
   * @retval one word data
   */
-int16_t get_RawGyro_X(I2C_TypeDef* I2Cx) {
+__IO int16_t get_RawGyro_X(I2C_TypeDef* I2Cx) {
   uint8_t data[2];
   I2C_burst_read(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_GYRO_XOUT_H, 2, data);
 
@@ -91,7 +91,7 @@ int16_t get_RawGyro_X(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval one word data
   */
-int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx) {
+__IO int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx) {
   uint8_t data[2];
   I2C_burst_read(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_GYRO_YOUT_H, 2, data);
 
@@ -104,7 +104,7 @@ int16_t get_RawGyro_Y(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval one word data
   */
-int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx) {
+__IO int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx) {
   uint8_t data[2];
   I2C_burst_read(I2Cx, ITG3200_ADDR_DEFAUT, ITG3200_GYRO_ZOUT_H, 2, data);
 
@@ -117,7 +117,7 @@ int16_t get_RawGyro_Z(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval g-force along X axis (in g unit)
   */
-float get_Gyro_X(I2C_TypeDef* I2Cx) {
+__IO float get_Gyro_X(I2C_TypeDef* I2Cx) {
   return (float) ((get_RawGyro_X(I2Cx) + imudata.gyro_offset[0]) / 14.375);
 }
 
@@ -126,7 +126,7 @@ float get_Gyro_X(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval g-force on Y axis (in g unit)
   */
-float get_Gyro_Y(I2C_TypeDef* I2Cx) {
+__IO float get_Gyro_Y(I2C_TypeDef* I2Cx) {
   return (float) ((get_RawGyro_Y(I2Cx) + imudata.gyro_offset[1]) / 14.375);
 }
 
@@ -135,9 +135,38 @@ float get_Gyro_Y(I2C_TypeDef* I2Cx) {
   * @param  I2C interface you wanna use
   * @retval g-force on Z axis (in g unit)
   */
-float get_Gyro_Z(I2C_TypeDef* I2Cx) {
+__IO float get_Gyro_Z(I2C_TypeDef* I2Cx) {
   return (float) ((get_RawGyro_Z(I2Cx) + imudata.gyro_offset[2]) / 14.375);
 }
 
+/**
+  * @brief  Gyroscope calibration
+  * @param  I2C interface you wanna use, number of samples
+  * @retval 0 for done or other for not
+  */
+int GyroCalibrate(I2C_TypeDef* I2Cx, uint8_t n_sample) {
+  char str[50];
+  DelayMs(1000);
+
+  imudata.gyro_offset[0] = 0;
+  imudata.gyro_offset[1] = 0;
+  imudata.gyro_offset[2] = 0;
+
+  for(uint16_t i = n_sample; i > 0; i--) {
+    DelayUs(1000);
+    imudata.gyro_offset[0] += get_RawGyro_X(I2C2);
+    imudata.gyro_offset[1] += get_RawGyro_Y(I2C2);
+    imudata.gyro_offset[2] += get_RawGyro_Z(I2C2);
+  }
+  imudata.gyro_offset[0] = (-imudata.gyro_offset[0])/n_sample;
+  imudata.gyro_offset[1] = (-imudata.gyro_offset[1])/n_sample;
+  imudata.gyro_offset[2] = (-imudata.gyro_offset[2])/n_sample;
+
+  sprintf(str, "Gyro Calibrated x: %d   y: %d   z: %d\n\r", imudata.gyro_offset[0],
+      imudata.gyro_offset[1], imudata.gyro_offset[2]);
+  USART_SendText(USART1, str);
+
+  return 0;
+}
 
 /******************************* END OF FILE **********************************/
