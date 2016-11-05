@@ -69,9 +69,14 @@ int main(void)
   }
   USART_SendText(USART1, "LED Initialize done\n\r");
 
+  /* Gyro calibrate */
+  if(GyroCalibrate(I2C2, GYRO_CAL_N_SAMPLE)) {
+    while(1);
+  }
+
   __IO char res;
   StartTimeoutUs(5000000);
-  USART_SendText(USART1, "Are you wanna calibrate your sensors? (Y/n). Timeout in 5 seconds ...");
+  USART_SendText(USART1, "Are you wanna calibrate your accelerometer? (Y/n). Timeout in 5 seconds ...");
   while(!IsReachTimeout()) {
     //if(USART_GetFlagStatus(USART1, USART_FLAG_RXNE) == RESET)
       res = (char) USART_ReceiveData(USART1);
@@ -79,17 +84,12 @@ int main(void)
   USART_SendText(USART1, "\n\r");
 
   if(res == 'Y' || res == 'y' || res == 0x20 || res == 0x10 || res == 0x13) {
-    /* Gyro calibrate */
-    if(GyroCalibrate(I2C2, GYRO_CAL_N_SAMPLE)) {
-      while(1);
-    }
-
     /* Accel calibrate */
     if(AccelCalibrate(I2C2)) {
       while(1);
     }
   } else {
-    USART_SendText(USART1, "Sensors are not calibrated!\n\r");
+    USART_SendText(USART1, "Accelerometer is NOT calibrated!\n\r");
   }
 
   USART_SendText(USART1, "Press any key to start... \n\r");
