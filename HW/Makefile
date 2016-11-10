@@ -50,6 +50,7 @@ INCLUDEDIRS += Sensors/inc
 INCLUDEDIRS += Libraries/STM32F10x_StdPeriph_Driver/inc
 INCLUDEDIRS += Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x
 INCLUDEDIRS += Libraries/CMSIS/CM3/CoreSupport
+INCLUDEDIRS += AHRS
 # include of FreeRTOS
 INCLUDEDIRS += FreeRTOS
 INCLUDEDIRS += FreeRTOS/include
@@ -58,6 +59,7 @@ INCLUDEDIRS += FreeRTOS/portable/MemMang
 
 # Source of specify libraries
 LIBSOURCES  =
+LIBSOURCES += AHRS/AHRS.c
 #LIBSOURCES += Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/system_stm32f10x.c
 #LIBSOURCES += Libraries/STM32F10x_StdPeriph_Driver/src/
 
@@ -180,4 +182,3 @@ clean:
 	rm -f $(PROJ_NAME).bin
 	rm -f $(PROJ_NAME).map
 	rm -f $(PROJ_NAME).lst
-
