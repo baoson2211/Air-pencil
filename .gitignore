@@ -34,6 +34,8 @@
 *.slo
 *.lo
 *.o
+*.d
+*.asm
 *.obj
 
 # Precompiled Headers
