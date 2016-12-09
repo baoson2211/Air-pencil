@@ -58,8 +58,14 @@ INCLUDEDIRS += FreeRTOS/portable/GCC/ARM_CM3
 INCLUDEDIRS += FreeRTOS/portable/MemMang
 
 # Source of specify libraries
-LIBSOURCES  =
-LIBSOURCES += AHRS/AHRS.c
+LIBSOURCES  = AHRS/AHRS.c
+# system_stm32f10x.c
+LIBSOURCES += $(shell find Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x -name '*.c')
+# full std periph libraries - if you wanna choose specify libraries, comment the line below
+# and define specify ones in this LIBSOURCES
+LIBSOURCES += $(shell find Libraries/STM32F10x_StdPeriph_Driver/src -name '*.c')
+# sensors user define libraries
+LIBSOURCES += $(shell find Sensors/src -name '*.c')
 #LIBSOURCES += Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/system_stm32f10x.c
 #LIBSOURCES += Libraries/STM32F10x_StdPeriph_Driver/src/
 
@@ -79,19 +85,17 @@ LIBOBJS = $(LIBSOURCES:.c=.o)
 # Source files
 #
 # auto-generated project paths
-SOURCES  = $(shell find Src -name *.c)
-SOURCES += $(shell find Sensors/src -name *.c)
-# system_stm32f10x.c
-SOURCES += $(shell find Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x -name *.c)
-# full std periph libraries - if you wanna choose specify libraries, comment the line below
-# and define it in LIBSOURCES
-SOURCES += $(shell find Libraries/STM32F10x_StdPeriph_Driver/src -name *.c)
+SOURCES  = $(shell find Src -name '*.c')
 SOURCES += Libraries/CMSIS/CM3/DeviceSupport/ST/STM32F10x/startup/TrueSTUDIO/startup_stm32f10x_md.s
 
 # C Object files
 OBJC = $(SOURCES:.c=.o)
 # add ASM Object files
 OBJ = $(OBJC:.s=.o)
+
+# Resources are translated to ASM
+TOASSEMBLY  = $(SOURCES:.c=.o)
+TOASSEMBLY += $(LIBSOURCES:.c=.o)
 
 # Linked file
 # can see it in STM32F10x_StdPeriph_Lib_V3.x.x/Project/STM32F10x_StdPeriph_Template/TrueSTUDIO/STM3210X-EVAL
@@ -107,11 +111,11 @@ CFLAGS += -ffunction-sections -fdata-sections
 CFLAGS += -Wl,--gc-sections -Wl,-Map=$(PROJ_NAME).map
 CFLAGS +=  $(addprefix -I ,$(INCLUDEDIRS))
 
-.PHONY: all
+.PHONY: all clean
 
 all: proj
 
-proj: $(PROJ_NAME).elf
+proj: toassembly $(PROJ_NAME).elf
 
 ################################################################################
 # Compile and assemble sequence C files, but do not link
@@ -119,7 +123,15 @@ proj: $(PROJ_NAME).elf
 %.o: %.c
 # $(eval AUTOINCLUDES = $(addprefix -include ,$(shell find $(dir $<) -name *.h)))
 	$(CC) -c -o $@ $< $(CFLAGS)
+# Translate all .c files to ASM -masm
+	$(CC) -S -o $*.asm $< $(CFLAGS)
+# pull in dependency info for *existing* .o files
+	$(CC) -MM $(CFLAGS) $< > $*.d
 
+################################################################################
+# Translate all .c files to ASM
+#
+toassembly: $(TOASSEMBLY)
 
 ################################################################################
 # A brief introduction about the libraries:
@@ -176,7 +188,9 @@ flash:
 # Clean
 #
 clean:
-	rm -f $(shell find ./ -name *.o)
+	rm -f $(shell find ./ -name '*.o')
+	rm -f $(shell find ./ -name '*.d')
+	rm -f $(shell find ./ -name '*.asm')
 	rm -f $(PROJ_NAME).elf
 	rm -f $(PROJ_NAME).hex
 	rm -f $(PROJ_NAME).bin
