@@ -163,7 +163,7 @@ toassembly: $(TOASSEMBLY)
 #      (GNU Make - page 72 - 6.13 Suppressing Inheritance)
 # -T : ld script file
 #
-$(PROJ_NAME).elf: $(SOURCES) $(LIBOBJS)
+$(PROJ_NAME).elf: $(OBJ) $(LIBOBJS)
 	$(CC) $(CFLAGS) $^ -o $@ $(LDSCRIPT) --specs=nano.specs --specs=rdimon.specs -lc -lm -lrdimon
 	$(OBJCOPY) -O ihex $(PROJ_NAME).elf $(PROJ_NAME).hex
 	$(OBJCOPY) -O binary $(PROJ_NAME).elf $(PROJ_NAME).bin
