@@ -21,7 +21,7 @@
 
 # build environment
 CC      = arm-none-eabi-gcc
-CPP     = arm-none-eabi-g++
+CXX     = arm-none-eabi-g++
 AR      = arm-none-eabi-ar
 AS      = arm-none-eabi-as
 OBJCOPY = arm-none-eabi-objcopy
